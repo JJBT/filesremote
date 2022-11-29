@@ -906,17 +906,35 @@ void FileManagerFrame::SetupSftpThreadCallbacks() {
             this->opened_files_local_[r.remote_path] = f;
         }
 
-        string editor = string(this->config_->Read("/editor", ""));
-        if (editor.empty()) {
-            string msg = "No text editor configured. Set one in Preferences.";
-            editor = guessTextEditor();
-            if (editor.empty()) {
-                wxMessageBox(wxString::FromUTF8(msg), "Text editor configuration", wxOK | wxICON_INFORMATION, this);
-                return;
+        // Open file depending on extension.
+        // TODO: Refactor this into a separate function.
+        string ext = getext(r.local_path);
+        // TODO: add other file types here.
+        if (ext == ".mp4") {
+            string video_player = string(this->config_->Read("/video_player", ""));
+            if (video_player.empty()) {
+                string msg = "No video player configured. Set one in Preferences.";
+                video_player = guessVideoPlayer();
+                if (video_player.empty()) {
+                    wxMessageBox(wxString::FromUTF8(msg), "Video player configuration", wxOK | wxICON_INFORMATION, this);
+                    return;
+                }
             }
+            string path = regex_replace(r.local_path, regex("\""), "\\\"");
+            wxExecute(wxString::FromUTF8(video_player + " \"" + path + "\""), wxEXEC_ASYNC);
+        } else {
+            string editor = string(this->config_->Read("/editor", ""));
+            if (editor.empty()) {
+                string msg = "No text editor configured. Set one in Preferences.";
+                editor = guessTextEditor();
+                if (editor.empty()) {
+                    wxMessageBox(wxString::FromUTF8(msg), "Text editor configuration", wxOK | wxICON_INFORMATION, this);
+                    return;
+                }
+            }
+            string path = regex_replace(r.local_path, regex("\""), "\\\"");
+            wxExecute(wxString::FromUTF8(editor + " \"" + path + "\""), wxEXEC_ASYNC);
         }
-        string path = regex_replace(r.local_path, regex("\""), "\\\"");
-        wxExecute(wxString::FromUTF8(editor + " \"" + path + "\""), wxEXEC_ASYNC);
     }, ID_SFTP_THREAD_RESPONSE_DOWNLOAD);
 
     // Sftp thread will trigger this callback after successfully uploading a file.

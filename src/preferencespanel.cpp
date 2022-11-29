@@ -78,6 +78,38 @@ string guessTextEditor() {
 }
 
 
+string guessVideoPlayer() {
+#ifdef __WXMSW__
+    if (exists("C:\\Program Files\\Windows Media Player\\wmplayer.exe")) {
+        return "C:\\Program Files\\Windows Media Player\\wmplayer.exe";
+    }
+    if (exists("C:\\Program Files (x86)\\Windows Media Player\\wmplayer.exe")) {
+        return "C:\\Program Files (x86)\\Windows Media Player\\wmplayer.exe";
+    }
+    if (exists("C:\\Program Files\\VideoLAN\\VLC\\vlc.exe")) {
+        return "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
+    }
+    if (exists("C:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe")) {
+        return "C:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe";
+    }
+    return "";
+#elif __WXOSX__
+    if (exists("/Applications/VLC.app")) {
+        return "open -a \"VLC\"";
+    }
+    return "open -a \"QuickTime Player\"";
+#else
+    if (exists("/usr/bin/vlc")) {
+        return "/usr/bin/vlc";
+    }
+    if (exists("/usr/bin/xdg-open")) {
+        return "/usr/bin/xdg-open";
+    }
+    return "";
+#endif
+}
+
+
 PreferencesPageGeneralPanel::PreferencesPageGeneralPanel(wxWindow *parent, wxConfigBase *config) : wxPanel(parent) {
     this->config_ = config;
 

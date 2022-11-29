@@ -58,3 +58,13 @@ string basename(string path) {
     while (getline(s, segment, '/')) {}
     return segment;
 }
+
+
+string getext(string path) {
+    string b = basename(path);
+    int i = b.find_last_of('.');
+    if (i == string::npos) {
+        return "";
+    }
+    return b.substr(i);
+}
